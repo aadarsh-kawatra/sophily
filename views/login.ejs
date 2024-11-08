@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sophily | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="w-full min-h-screen p-10 bg-zinc-900 text-white">
+      <h1 class="mb-4 text-3xl">Login Account</h1>
+      <form action="/login" method="post" class="w-80 grid gap-4">
+        <input
+          type="email"
+          placeholder="email"
+          name="email"
+          class="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded outline-none"
+        />
+        <input
+          type="password"
+          placeholder="password"
+          name="password"
+          class="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded outline-none"
+        />
+        <input
+          type="submit"
+          value="Login"
+          class="px-5 py-2 bg-zinc-50 text-zinc-950 rounded outline-none cursor-pointer hover:bg-zinc-100"
+        />
+      </form>
+      <p class="mt-8">
+        New user?
+        <a href="/" class="text-blue-500 hover:underline">Signup</a>
+      </p>
+    </div>
+  </body>
+</html>
