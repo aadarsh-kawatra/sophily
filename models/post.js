@@ -10,8 +10,8 @@ mongoose
   });
 
 const postSchema = mongoose.Schema({
-  content: String,
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+  content: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
   date: { type: Date, default: Date.now },
 });

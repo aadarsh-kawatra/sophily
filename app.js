@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 // middlewares
 function isLoggedin(req, res, next) {
-  if (!req.cookies.token) return res.send("You need to be logged in");
+  if (!req.cookies.token) return res.redirect("/login");
 
   const data = jwt.verify(req.cookies.token, jwt_secret);
   req._user = data;
@@ -79,7 +79,7 @@ app.post("/login", async (req, res) => {
       expiresIn: "1d",
     });
     res.cookie("token", token);
-    return res.send("User Logged In");
+    return res.redirect("/profile");
   } catch (err) {
     console.error(err);
     return res.status(500).send("User Login Failed");
@@ -94,18 +94,78 @@ app.get("/logout", (req, res) => {
 app.get("/profile", isLoggedin, async (req, res) => {
   const { user_id } = req._user;
 
-  const existingUser = await userModel.findOne({ _id: user_id });
-  if (!existingUser) {
+  const user = await userModel.findOne({ _id: user_id });
+  if (!user) {
     res.cookie("token", "");
     return res.send("Invalid Session");
   }
 
-  return res.send({
-    name: existingUser.name,
-    email: existingUser.email,
-    username: existingUser.username,
-    age: existingUser.age,
-  });
+  await user.populate("posts");
+  return res.render("profile", { user });
+});
+
+app.post("/post", isLoggedin, async (req, res) => {
+  const { user_id } = req._user;
+  const { content } = req.body;
+
+  try {
+    const user = await userModel.findOne({ _id: user_id });
+    if (!user) {
+      res.cookie("token", "");
+      return res.send("Invalid Session");
+    }
+
+    const newPost = await postModel.create({
+      content,
+      user: user_id,
+    });
+    user.posts.push(newPost._id);
+    await user.save();
+
+    return res.send("post created");
+  } catch (error) {
+    return res.status(500).send("Post Creation Failed");
+  }
+});
+
+app.get("/like/:id", isLoggedin, async (req, res) => {
+  const { user_id } = req._user;
+  const { id: post_id } = req.params;
+
+  const post = await postModel.findOne({ _id: post_id });
+  if (post.likes.indexOf(user_id) === -1) {
+    post.likes.push(user_id);
+  } else {
+    post.likes = post.likes.filter((ele) => ele.toString() !== user_id);
+  }
+  await post.save();
+
+  return res.redirect("/profile");
+});
+
+app.get("/edit/:id", isLoggedin, async (req, res) => {
+  const { user_id } = req._user;
+  const { id: post_id } = req.params;
+
+  const post = await postModel.findOne({ _id: post_id });
+  if (post.user.toString() !== user_id) return res.redirect("/profile");
+
+  return res.render("edit", { post });
+});
+
+app.post("/edit/:id", isLoggedin, async (req, res) => {
+  const { user_id } = req._user;
+  const { id: post_id } = req.params;
+  const { content } = req.body;
+
+  const post = await postModel.findOne({ _id: post_id });
+  if (post.user.toString() !== user_id) {
+    return res.status(403).send("Unauthorized User");
+  }
+
+  post.content = content;
+  await post.save();
+  return res.redirect("/profile");
 });
 
 app.listen(port, () => {
