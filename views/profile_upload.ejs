@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./partials/head') %>
+    <title>Sophily | Profile</title>
+  </head>
+  <body>
+    <div class="w-full min-h-screen p-10 bg-zinc-900 text-white">
+      <h2 class="text-2xl">Upload Profile Picture</h2>
+      <form
+        action="/profile_pic_upload"
+        method="post"
+        enctype="multipart/form-data"
+        class="max-w-xs mt-4 grid gap-4 text-sm"
+      >
+        <input
+          type="file"
+          name="profile_pic"
+          class="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded outline-none resize-none"
+        />
+        <input
+          type="submit"
+          value="Upload File"
+          class="w-40 px-5 py-2 bg-zinc-50 text-zinc-950 rounded font-semibold outline-none cursor-pointer hover:bg-zinc-100"
+        />
+      </form>
+    </div>
+  </body>
+</html>

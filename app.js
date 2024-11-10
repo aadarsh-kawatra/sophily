@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 // models
 const userModel = require("./models/user.js");
@@ -15,8 +16,10 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "public")));
 
 // middlewares
+const upload = require("./config/multer.js");
 function isLoggedin(req, res, next) {
   if (!req.cookies.token) return res.redirect("/login");
 
@@ -103,6 +106,30 @@ app.get("/profile", isLoggedin, async (req, res) => {
   await user.populate("posts");
   return res.render("profile", { user });
 });
+
+app.get("/profile/upload", isLoggedin, async (req, res) => {
+  return res.render("profile_upload");
+});
+
+app.post(
+  "/profile_pic_upload",
+  isLoggedin,
+  upload.single("profile_pic"),
+  async (req, res) => {
+    const profile_pic = req.file.filename;
+
+    try {
+      await userModel.findOneAndUpdate(
+        { _id: req._user.user_id },
+        { profile_pic }
+      );
+      return res.redirect("/profile");
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Profile Pic Upload Failed");
+    }
+  }
+);
 
 app.post("/post", isLoggedin, async (req, res) => {
   const { user_id } = req._user;

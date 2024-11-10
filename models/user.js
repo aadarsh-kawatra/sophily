@@ -15,6 +15,10 @@ const userSchema = mongoose.Schema({
   age: { type: Number, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
+  profile_pic: {
+    type: String,
+    default: "default_avatar-male.jpg",
+  },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "post" }],
 });
 
